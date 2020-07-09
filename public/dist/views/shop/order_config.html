@@ -1,0 +1,105 @@
+
+
+<title>支付配置</title>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>支付配置</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">支付配置</div>
+                <div class="layui-card-body">
+
+                    <div class="layui-form" wid100 lay-filter="order_config">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">Appid</label>
+                            <div class="layui-input-inline">
+                                <script type="text/html" template>
+                                    <input type="text" name="appid" lay-verify="required" lay-reqtext="微信小程序appid是必填项，岂能为空？" placeholder="请输入微信小程序appid" autocomplete="off" class="layui-input">
+                                </script>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">Appsecret</label>
+                            <div class="layui-input-inline">
+                                <script type="text/html" template>
+                                    <input type="text" name="appsecret" lay-verify="required" lay-reqtext="微信小程序appsecret是必填项，岂能为空？" placeholder="请输入微信小程序appsecret" autocomplete="off" class="layui-input">
+                                </script>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">mch_id</label>
+                            <div class="layui-input-inline">
+                                <script type="text/html" template>
+                                    <input type="text" name="mch_id" lay-verify="required" lay-reqtext="商户号是必填项，岂能为空？" placeholder="请输入微信商户号" autocomplete="off" class="layui-input">
+                                </script>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">key</label>
+                            <div class="layui-input-inline">
+                                <script type="text/html" template>
+                                    <input type="text" name="key" lay-verify="required" lay-reqtext="商户号key是必填项，岂能为空？" placeholder="请输入微信商户号key" autocomplete="off" class="layui-input">
+                                </script>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-input-block">
+                                <button class="layui-btn" lay-submit lay-filter="set_order_config">确认保存</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use(['form','view'], function() {
+        var $ = layui.$
+            ,view = layui.view
+            , form = layui.form;
+
+        $.ajax({
+            type:'get',
+            url:'/order_config',
+            success:function(data){
+                form.val("order_config", { //formTest 即 class="layui-form" 所在元素属性 lay-filter="" 对应的值
+                    "appid": data.appid // "name": "value"
+                    ,"appsecret": data.appsecret
+                    ,"mch_id": data.mch_id
+                    ,"key": data.key
+                });
+            }
+        })
+
+        //监听提交
+        form.on('submit(set_order_config)', function(data){
+            var field = data.field; //获取提交的字段
+            console.log('field',field);
+            $.ajax({
+                type:'get',
+                url:'/order_config?type=2',
+                data:field,
+                success:function(data){
+                    console.log('data:',data)
+                    layer.msg(data.msg);
+                    if(data.code == 200){
+                        form.render();
+                    }
+                },
+                error:function () {
+                    layer.msg('请求失败');
+                }
+            })
+        });
+    });
+</script>

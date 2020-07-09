@@ -1,0 +1,94 @@
+
+<div class="layui-form" lay-filter="layuiadmin-form-useradmin" style="padding: 20px 0 0 0;">
+  <div class="layui-form-item">
+    <label class="layui-form-label">分类名称</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name="name" value="{{d.params.name}}" lay-verify="required" lay-reqtext="分类名称是必填项，岂能为空？" placeholder="请输入分类名称" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">父级</label>
+    <div class="layui-input-inline">
+      <select name="pid" id="pid" class="layui-input" lay-filter="classify_select" lay-search>
+      </select>
+    </div>
+  </div>
+  <script type="text/html" template>
+    <div class="layui-form-item" id="show_img_path" {{# if (d.params.level != 2) { }}style="display:none;"{{# } }}>
+      <label class="layui-form-label">分类图片</label>
+      <div class="layui-input-inline">
+        <div class="layui-upload-drag" id="test10">
+          {{# if (d.params.level != 2) { }}
+          <i class="layui-icon"></i>
+          <p>点击上传，或将文件拖拽到此处</p>
+          {{# } else { }}
+          <img src="{{d.params.show_path}}" style="width: 100%;height: 100%;">
+          {{# } }}
+        </div>
+        <input type="hidden" name="img_path" id="img_path" {{# if (d.params.level == 2) { }} value="{{d.params.img_path}}" {{# } }}>
+      </div>
+    </div>
+  </script>
+  <script type="text/html" template>
+    <input type="hidden" name="id" value="{{d.params.id}}" lay-verify="required" autocomplete="off" class="layui-input">
+    <input type="hidden" id="selected_pid" value="{{d.params.pid}}" autocomplete="off" class="layui-input">
+  </script>
+  <div class="layui-form-item">
+    <label class="layui-form-label"></label>
+    <div class="layui-input-inline">
+      <input type="button" lay-submit lay-filter="LAY-user-front-submit" value="确认" class="layui-btn" style="width: 100%;">
+    </div>
+  </div>
+</div>
+<script>
+  layui.use(['form','upload'], function(){
+        var $ = layui.$
+        ,upload=layui.upload
+        ,form = layui.form;
+
+    setTimeout(function(){
+      var selected_pid=$('#selected_pid').val();
+      $.ajax({
+        type:'get',
+        url:'/select_classify',
+        data:{'classify_id':selected_pid},
+        success:function(data){
+          console.log('data:',data)
+          var select_html='<option value="0">一级分类</option>';
+          $.each(data, function(index, item) {
+            select_html+='<option value="'+item.id+'" '+item.selected+'>'+item.name+'</option>';
+            $.each(item.sub_classify_list, function(indexs, items) {
+              select_html+='<option value="'+items.id+'" '+items.selected+' title="2" >| --  '+items.name+'</option>';
+            });
+          });
+          $('#pid').html(select_html);
+          form.render('select');
+        }
+      })
+    },100);
+
+    form.on('select(classify_select)',function(data) {
+      var level=data.elem[data.elem.selectedIndex].title;
+      if(level == 2){
+        $('#show_img_path').show();
+      }else{
+        $('#show_img_path').hide();
+      }
+    });
+
+    //拖拽上传
+    upload.render({
+      elem: '#test10'
+      ,url: '/upload_good?type=1' //改成您自己的上传接口
+      ,accept: 'images'
+      ,acceptMime: 'image/*'
+      ,done: function(res){
+        layer.msg('上传成功');
+        $('#test10').html('<img src="'+res.show_path+'" style="width: 100%;height: 100%;">');
+        $('#img_path').val(res.path);
+      }
+    });
+  })
+</script>

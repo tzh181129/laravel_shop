@@ -1,0 +1,254 @@
+
+<style>
+    .show_user_img{
+        display: inline-block;
+        width: 50%;
+        height: 100%;
+        cursor: pointer;
+    }
+</style>
+<title>商品管理</title>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>商品管理</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="layadmin-userfront-formlist">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">商品名称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="username" placeholder="请输入账户名" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+<!--                <div class="layui-inline">-->
+<!--                    <label class="layui-form-label">电话号码</label>-->
+<!--                    <div class="layui-input-block">-->
+<!--                        <input type="text" name="telphone" placeholder="请输入电话号码" autocomplete="off" class="layui-input">-->
+<!--                    </div>-->
+<!--                </div>-->
+                <div class="layui-inline">
+                    <label class="layui-form-label">状态</label>
+                    <div class="layui-input-block">
+                        <select name="status">
+                            <option value="0">不限</option>
+                            <option value="1">上架</option>
+                            <option value="2">下架</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-useradmin" lay-submit lay-filter="LAY-user-front-search">
+                        <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-card-body">
+            <div style="padding-bottom: 10px;">
+                <button class="layui-btn layuiadmin-btn-useradmin" data-type="add">添加</button>
+            </div>
+
+            <table id="LAY-user-manage" lay-filter="LAY-user-manage"></table>
+            <script type="text/html" id="imgTpl">
+                <img class="show_user_img" src="{{ d.show_path }}" onclick="show_img('{{ d.show_path }}')">
+            </script>
+
+            <script type="text/html" id="switchTpl">
+                <input type="checkbox" name="status" value="{{d.id}}" lay-skin="switch" lay-text="上架|下架" lay-filter="changeStatus" {{ d.status == 1 ? 'checked' : '' }}>
+            </script>
+
+            <script type="text/html" id="table-useradmin-webuser">
+                <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+            </script>
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use(['table','layer','form'], function(){
+        var $ = layui.$
+            ,view = layui.view
+            ,table = layui.table
+            ,layer = layui.layer
+            ,form = layui.form;
+
+        table.render({
+            elem: '#LAY-user-manage'
+            ,url:'/goods_list'
+            ,cellMinWidth: 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+            ,cols: [[
+                {field:'id', width:80, title: 'ID', sort: true}
+                ,{field:'name', title: '商品名称'}
+                ,{field:'img_path', title: '商品图片',align:"center", width: 100, templet: '#imgTpl'}
+                ,{field:'classify_name', title: '所属分类'}
+                ,{field:'status', title: '状态',width:100, templet: '#switchTpl', unresize: true}
+                ,{field:'old_price', title: '原价'}
+                ,{field:'price', title: '现价'}
+                ,{field:'stock', title: '库存'}
+                ,{field:'add_time', title: '添加时间', sort: true}
+                ,{title: "操作", width: 150, align: "center", fixed: "right", toolbar: "#table-useradmin-webuser"}
+            ]]
+            ,page:true
+            ,limit: 10
+        });
+
+        form.render(null, 'layadmin-userfront-formlist');
+
+        //监听搜索
+        form.on('submit(LAY-user-front-search)', function(data){
+            var field = data.field;
+            console.log('field',field);
+            //执行重载
+            table.reload('LAY-user-manage', {
+                where: field
+            });
+        });
+
+        //事件
+        var active = {
+            add: function(){
+                layer.open({
+                    type:1
+                    ,title: '添加商品'
+                    ,area: ['800px', '550px']
+                    ,id: 'LAY-popup-user-add'
+                    ,success: function(layero, index){
+                        view(this.id).render('shop/goods_insert').done(function(){
+                            form.render(null, 'layuiadmin-form-useradmin');
+
+                            //监听提交
+                            form.on('submit(LAY-user-front-submit)', function(data){
+                                var field = data.field; //获取提交的字段
+                                console.log('field',field);
+                                $.ajax({
+                                    type:'get',
+                                    url:'/addGoods',
+                                    data:field,
+                                    success:function(data){
+                                        layer.msg(data.msg);
+                                        if(data.code == 200){
+                                            layui.table.reload('LAY-user-manage'); //重载表格
+                                            layer.close(index); //执行关闭
+                                        }
+                                        console.log('data:',data)
+                                    },
+                                    error:function () {
+                                        layer.msg('请求失败');
+                                    }
+                                })
+                            });
+                        });
+                    }
+                });
+            }
+        };
+
+        //监听工具条
+        table.on('tool(LAY-user-manage)', function(obj){
+            var data = obj.data;
+            console.log('obj',obj);
+            if(obj.event === 'del'){
+                layer.confirm('真的删除行么', function(index){
+                    $.ajax({
+                        type:'get',
+                        url:'/delGoods',
+                        data:{'id':data.id,'type':3},
+                        success:function(data){
+                            layer.msg(data.msg);
+                            if(data.code == 200){
+                                obj.del();
+                            }
+                        },
+                        error:function () {
+                            layer.msg('请求失败');
+                        }
+                    });
+                    layer.close(index);
+                });
+            } else if(obj.event === 'edit'){
+                layer.open({
+                    type:1
+                    ,title: '编辑商品'
+                    ,area: ['800px', '550px']
+                    ,id: 'LAY-popup-user-add'
+                    ,success: function(layero, index){
+                        view(this.id).render('shop/goods_save',data).done(function(){
+                            form.render(null, 'layuiadmin-form-useradmin');
+
+                            //监听提交
+                            form.on('submit(LAY-user-front-submit)', function(data){
+                                var field = data.field; //获取提交的字段
+                                console.log('field',field);
+                                $.ajax({
+                                    type:'get',
+                                    url:'/editGoods',
+                                    data:field,
+                                    success:function(data){
+                                        console.log('data:',data)
+                                        layer.msg(data.msg);
+                                        if(data.code == 200){
+                                            layui.table.reload('LAY-user-manage'); //重载表格
+                                            layer.close(index); //执行关闭
+                                        }
+                                    },
+                                    error:function () {
+                                        layer.msg('请求失败');
+                                    }
+                                })
+                            });
+                        });
+                    }
+                });
+            }
+        });
+
+        //监听状态操作
+        form.on('switch(changeStatus)', function(obj){
+            if(obj.elem.checked){
+                var type = 2;
+            }else{
+                var type = 1;
+            }
+            $.ajax({
+                type:'get',
+                url:'/delGoods',
+                data:{'id':this.value,'type':type},
+                success:function(data){
+                    layer.msg(data.msg);
+                    if(data.code == 200){
+                        layui.table.reload('LAY-user-manage'); //重载表格
+                    }
+                },
+                error:function () {
+                    layer.msg('请求失败');
+                }
+            });
+        });
+
+        $('.layui-btn.layuiadmin-btn-useradmin').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+    });
+
+    function show_img(img_path){
+        console.log('img_src',img_path);
+        layer.open({
+            type: 1,
+            title: false,
+            closeBtn: 0,
+            area: ['60%','60%'],
+            skin: 'layui-layer-nobg', //没有背景色
+            shadeClose: true,
+            content: '<img src="'+img_path+'" style="width: 100%;height: 100%;">',
+        });
+    }
+</script>

@@ -1,0 +1,58 @@
+
+
+<div class="layui-form" lay-filter="layuiadmin-form-useradmin" style="padding: 20px 0 0 0;margin: 0 1%;">
+  <div class="layui-form-item">
+  <table class="layui-table">
+      <thead>
+      <tr>
+        <th width="10%">模块</th>
+        <th>规则</th>
+      </tr>
+      </thead>
+      <tbody id="auth">
+      </tbody>
+    </table>
+  </div>
+  <script type="text/html" template>
+    <input type="hidden" name="id" value="{{d.params.id}}" id="role_id" lay-verify="required" autocomplete="off" class="layui-input">
+    <input type="hidden" name="type" value="2">
+  </script>
+  <div class="layui-form-item">
+    <div class="layui-input-inline" style="float: right;">
+      <input type="button" lay-submit lay-filter="LAY-user-front-submit" value="确认" class="layui-btn" style="width: 100%;">
+    </div>
+  </div>
+</div>
+<script>
+layui.use(['form'], function(){
+  var $ = layui.$
+  ,form = layui.form;
+
+  setTimeout(function() {
+    var id=$('#role_id').val();
+    console.log('id',id)
+    $.ajax({
+      type: 'get',
+      url: '/authRole',
+      data:{'id':id},
+      success: function (data) {
+        console.log('data:', data)
+        if (data.code == 200) {
+          var table_html = '';
+          $.each(data.node, function (index, item) {
+            var sub_html = '';
+            $.each(item.sub_node, function (indexs, items) {
+              sub_html += '<input type="checkbox" name="node[]" lay-skin="primary" value="'+items.id+'" title="' + items.name + '" ' + items.checked + '>'
+            });
+            table_html += '<tr><td width="10%">' + item.name + '</td><td>' + sub_html + '</td></tr>';
+          });
+          $('#auth').html(table_html);
+          form.render();
+        } else {
+          layer.msg(data.msg, {time: 2000});
+        }
+      }
+    })
+  });
+})
+</script>

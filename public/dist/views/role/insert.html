@@ -1,0 +1,32 @@
+
+
+<div class="layui-form" lay-filter="layuiadmin-form-useradmin" style="padding: 20px 0 0 0;">
+  <div class="layui-form-item">
+    <label class="layui-form-label">角色名称</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name="name" lay-verify="required" lay-reqtext="角色名称是必填项，岂能为空？" placeholder="请输入角色名称" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">角色介绍</label>
+    <div class="layui-input-block">
+      <script type="text/html" template>
+        <textarea placeholder="请输入角色介绍" name="detail"  class="layui-textarea" style="width: 80%;"></textarea>
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label"></label>
+    <div class="layui-input-inline">
+      <input type="button" lay-submit lay-filter="LAY-user-front-submit" value="确认" class="layui-btn" style="width: 100%;">
+    </div>
+  </div>
+</div>
+<script>
+layui.use(['form'], function(){
+  var $ = layui.$
+  ,form = layui.form;
+})
+</script>

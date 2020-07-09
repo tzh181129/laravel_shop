@@ -1,0 +1,218 @@
+<style>
+  .layui-layedit{
+    width: 91%;
+  }
+  .show_banner{
+    width: 100px;
+    height: 100px;
+    padding: 5px;
+  }
+  .handle{
+    position: relative;
+    background-color: black;
+    color: white;
+    filter: alpha(Opacity=80);
+    -moz-opacity: 0.5;
+    opacity: 0.5;
+    width: 100px;
+    text-align: right;
+    margin-bottom: -18px;
+  }
+  .handle i{
+    cursor: pointer;
+  }
+</style>
+
+<div class="layui-form" lay-filter="layuiadmin-form-useradmin" style="padding: 20px 0 0 0;">
+  <div style="width: 50%;float: left;">
+    <div class="layui-form-item">
+      <label class="layui-form-label">商品名称</label>
+      <div class="layui-input-inline">
+        <script type="text/html" template>
+          <input type="text" name="name" lay-verify="required" value="{{d.params.name}}" lay-reqtext="商品名称是必填项，岂能为空？" placeholder="请输入商品名称" autocomplete="off" class="layui-input">
+        </script>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">所属分类</label>
+      <div class="layui-input-inline">
+        <select name="classify_id" id="classify_id" class="layui-input" lay-verify="required" lay-reqtext="商品所属分类是必填项，岂能为空？" lay-filter="classify_select" lay-search>
+        </select>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">商品截图</label>
+      <div class="layui-input-inline">
+        <script type="text/html" template>
+        <div class="layui-upload-drag" id="test10">
+            {{# if (!d.params.img_path) { }}
+            <i class="layui-icon"></i>
+            <p>点击上传，或将文件拖拽到此处</p>
+            {{# } else { }}
+            <img src="{{d.params.show_path}}" style="width: 100%;height: 100%;">
+            {{# } }}
+          </div>
+          <input type="hidden" name="img_path" id="img_path" value="{{d.params.img_path}}" lay-verify="required" lay-reqtext="商品截图是必填项，岂能为空？">
+        </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">商品排序</label>
+      <div class="layui-input-inline">
+        <script type="text/html" template>
+          <input type="text" name="sort" placeholder="请输入商品排序" value="{{d.params.sort}}" autocomplete="off" class="layui-input">
+        </script>
+      </div>
+    </div>
+  </div>
+  <div style="width: 50%;float: right;">
+    <div class="layui-form-item">
+      <label class="layui-form-label">商品原价</label>
+      <div class="layui-input-inline">
+        <script type="text/html" template>
+          <input type="text" name="old_price" placeholder="请输入商品原价" value="{{d.params.old_price}}" autocomplete="off" class="layui-input">
+        </script>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">商品现价</label>
+      <div class="layui-input-inline">
+        <script type="text/html" template>
+          <input type="text" name="price" lay-verify="required" value="{{d.params.price}}" lay-reqtext="商品现价是必填项，岂能为空？" placeholder="请输入商品现价" autocomplete="off" class="layui-input">
+        </script>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">已售库存</label>
+      <div class="layui-input-inline">
+        <script type="text/html" template>
+          <input type="text" name="sell_stock" placeholder="请输入已售库存" value="{{d.params.sell_stock}}" autocomplete="off" class="layui-input">
+        </script>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">现有库存</label>
+      <div class="layui-input-inline">
+        <script type="text/html" template>
+          <input type="text" name="stock" lay-verify="required" value="{{d.params.stock}}" lay-reqtext="现有库存是必填项，岂能为空？" placeholder="请输入现有库存" autocomplete="off" class="layui-input">
+        </script>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">商品简介</label>
+      <div class="layui-input-block">
+        <script type="text/html" template>
+          <textarea placeholder="请输入商品简介" name="desc" class="layui-textarea" style="width: 80%;">{{d.params.desc}}</textarea>
+        </script>
+      </div>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">商品轮播</label>
+    <div class="layui-input-block">
+      <button type="button" class="layui-btn" id="test2">多图片上传</button>
+      <blockquote class="layui-elem-quote layui-quote-nm" style="margin-top: 10px;">
+        预览图：
+        <div class="layui-upload-list" id="demo2" style="display: flex;">
+          <script type="text/html" template>
+            {{# layui.each(d.params.banner_show_path, function(index, item){ }}
+            <div class="show_banner" >
+              <div class="handle"><i class="layui-icon layui-icon-delete"></i></div>
+              <img src="{{item.show_path}}" style="width: 100%;height: 100%;">
+              <input type="hidden" name="banner_path[]" value="{{item.banner_path}}">
+            </div>
+            {{# }); }}
+          </script>
+        </div>
+      </blockquote>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">商品详情</label>
+    <div class="layui-input-block">
+      <script type="text/html" template>
+        <textarea placeholder="请输入商品详情" name="detail" lay-verify="detail_content" id="detail"  class="layui-textarea">{{d.params.detail}}</textarea>
+      </script>
+    </div>
+  </div>
+  <script type="text/html" template>
+     <input type="hidden" id="selected_classify_id" value="{{d.params.classify_id}}">
+     <input type="hidden" name="id" value="{{d.params.id}}">
+  </script>
+  <div class="layui-form-item" style="margin: 0 40% 1%;">
+    <div class="layui-input-inline">
+      <input type="button" lay-submit lay-filter="LAY-user-front-submit" value="确认" class="layui-btn" style="width: 100%;">
+    </div>
+  </div>
+</div>
+<script src="/layui/xm-select.js" type="text/javascript" charset="utf-8"></script>
+<script>
+  layui.use(['laydate','form', 'upload','layedit'], function(){
+    var $ = layui.$
+            ,form = layui.form
+            ,laydate = layui.laydate
+            ,layedit=layui.layedit
+            ,upload = layui.upload;
+
+    layedit.set({
+      uploadImage: {
+        url: '/upload_good?type=2' //接口url
+      }
+    });
+    var detail=layedit.build('detail');
+
+    form.verify({
+      detail_content: function(value) {
+        layedit.sync(detail);
+      }
+    });
+
+    //拖拽上传
+    upload.render({
+      elem: '#test10'
+      ,url: '/upload_good?type=2' //改成您自己的上传接口
+      ,accept: 'images'
+      ,acceptMime: 'image/*'
+      ,done: function(res){
+        layer.msg('上传成功');
+        $('#test10').html('<img src="'+res.show_path+'" style="width: 100%;height: 100%;">');
+        $('#img_path').val(res.path);
+        console.log(res)
+      }
+    });
+
+    //多图片上传
+    upload.render({
+      elem: '#test2'
+      ,url: '/upload_good?type=2' //改成您自己的上传接口
+      ,multiple: true
+      ,accept: 'images'
+      ,acceptMime: 'image/*'
+      ,done: function(res){
+        $('#demo2').append('<div class="show_banner"><div class="handle"><i class="layui-icon layui-icon-delete"></i></div><img src="'+res.show_path+'" style="width: 100%;height: 100%;"><input type="hidden" name="banner_path[]" value="'+res.path+'"></div>');
+      }
+    });
+
+    setTimeout(function () {
+      var classify_id=$('#selected_classify_id').val();
+      $.ajax({
+        type:'get',
+        url:'/select_classify?type=2',
+        data:{'classify_id':classify_id},
+        success:function(data){
+          console.log('data:',data)
+          var select_html='<option value="">选择所属商品分类</option>';
+          $.each(data, function(index, item) {
+            select_html+='<option value="'+item.id+'" '+item.selected+'>'+item.classify_name+'</option>';
+          });
+          $('#classify_id').html(select_html);
+          form.render('select');
+        }
+      })
+    })
+
+    $('.layui-icon-delete').on('click',function(){
+       $(this).parents('.show_banner').remove();
+    })
+  })
+</script>

@@ -1,0 +1,127 @@
+
+
+<div class="layui-form" lay-filter="layuiadmin-form-useradmin" style="padding: 20px 0 0 0;">
+  <div class="layui-form-item">
+    <label class="layui-form-label">菜单名称</label>
+    <div class="layui-input-inline">
+        <input type="text" name="title" lay-verify="required" lay-reqtext="菜单名称是必填项，岂能为空？" placeholder="请输入菜单名称" autocomplete="off" class="layui-input">
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">菜单图标</label>
+    <div class="layui-input-inline">
+        <input type="text" name="icon" placeholder="请输入layui支持的菜单图标" autocomplete="off" class="layui-input">
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">菜单链接</label>
+    <div class="layui-input-inline">
+      <input type="text" name="jump" lay-verify="required" lay-reqtext="菜单链接是必填项，岂能为空？" placeholder="请输入菜单链接" autocomplete="off" class="layui-input">
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">上级菜单</label>
+    <div class="layui-input-inline">
+      <select name="pid" id="pid" class="layui-input">
+      </select>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">一级节点</label>
+    <div class="layui-input-inline">
+      <select name="node_id" id="node_id" class="layui-input" lay-verify="required" lay-reqtext="一级节点是必填项，岂能为空？" lay-filter="node_select">
+      </select>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">次级节点</label>
+    <div class="layui-input-inline">
+      <select name="sub_node_id" id="sub_node_id" class="layui-input" lay-verify="required" lay-reqtext="次级节点是必填项，岂能为空？">
+        <option value="">请先选择一级节点</option>
+      </select>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">排序</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="number" name="sort" min="0" placeholder="请输入菜单顺序" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label"></label>
+    <div class="layui-input-inline">
+      <input type="button" lay-submit lay-filter="LAY-user-front-submit" value="确认" class="layui-btn" style="width: 100%;">
+    </div>
+  </div>
+</div>
+<script>
+layui.use(['form'], function(){
+  var $ = layui.$
+  ,form = layui.form;
+
+  $.ajax({
+    type:'get',
+    url:'/select_menu',
+    success:function(data){
+      var select_html='<option value="0">一级菜单</option>';
+      $.each(data, function(index, item) {
+        select_html+='<option value="'+item.id+'">'+item.title+'</option>'
+      });
+      $('#pid').html(select_html);
+      form.render('select');
+    }
+  });
+
+  $.ajax({
+    type:'get',
+    url:'/select_menu_node',
+    success:function(data){
+      console.log('data',data);
+      var select_html = '<option value="">请选择一级节点</option>';
+      if(data.code == 200) {
+        $.each(data.node_list, function (index, item) {
+          select_html += '<option value="' + item.id + '">' + item.name + '</option>'
+        });
+      }
+      $('#node_id').html(select_html);
+      form.render('select');
+    }
+  });
+
+  form.on('select(node_select)',function(data) {
+    if(data.value == ''){
+      var html='<option value="">请先选择一级节点</option>';
+      $('#sub_node_id').html(html);
+      form.render("select");
+    }else{
+      $.ajax({
+        url: "/select_menu_node", //请求退出
+        data:{'node_id':data.value,'type':2},
+        type: "get", //请求方式
+        success: function (data) {
+          console.log('data',data);
+          if(data.code == 200){
+            var html='<option value="">请选择次级节点</option>';
+            $.each(data.node_list, function (i, result) {
+              html+='<option value="'+result.id+'">'+result.name+'</option>';
+            });
+            $('#sub_node_id').html(html);
+            form.render("select");
+          }else{
+            layer.msg(data.msg,{time:2000});
+          }
+        },
+        error: function (data) {
+          layer.msg('请求失败');
+          console.log("请求失败了！", data);
+        },
+        complete: function (data) {
+          console.log("请求结束了！", data)
+        }
+      });
+    }
+  });
+})
+</script>

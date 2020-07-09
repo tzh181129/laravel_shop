@@ -1,0 +1,61 @@
+<div class="layui-form" lay-filter="layuiadmin-form-useradmin" style="padding: 20px 0 0 0;">
+  <div class="layui-form-item">
+    <label class="layui-form-label">节点名称</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name="name" value="{{d.params.name}}" lay-verify="required" lay-reqtext="节点名称是必填项，岂能为空？" placeholder="请输入节点名称" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">节点链接</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name="link" value="{{d.params.link}}" lay-verify="required" lay-reqtext="节点链接是必填项，岂能为空？" placeholder="请输入节点链接" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">父级</label>
+    <div class="layui-input-inline">
+      <select name="pid" id="pid" class="layui-input">
+      </select>
+    </div>
+  </div>
+  <script type="text/html" template>
+    <input type="hidden" name="id" value="{{d.params.id}}" lay-verify="required" autocomplete="off" class="layui-input">
+    <input type="hidden" id="selected_node" value="{{d.params.pid}}" autocomplete="off" class="layui-input">
+  </script>
+  <div class="layui-form-item">
+    <label class="layui-form-label"></label>
+    <div class="layui-input-inline">
+      <input type="button" lay-submit lay-filter="LAY-user-front-submit" value="确认" class="layui-btn" style="width: 100%;">
+    </div>
+  </div>
+</div>
+<script>
+  layui.use(['form'], function(){
+    var $ = layui.$
+        ,form = layui.form;
+
+    setTimeout(function(){
+      var selected_node=$('#selected_node').val();
+      console.log('selected_node',selected_node);
+      $.ajax({
+        type:'get',
+        url:'/select_node',
+        data:{'node_id':selected_node},
+        success:function(data){
+          console.log('data:',data)
+          var select_html='<option value="0">一级节点</option>';
+          $.each(data, function(index, item) {
+            select_html+='<option value="'+item.id+'" '+item.selected+'>'+item.name+'</option>'
+          });
+          console.log('select_html',select_html);
+          $('#pid').html(select_html);
+          form.render('select');
+        }
+      })
+    },500);
+  })
+</script>

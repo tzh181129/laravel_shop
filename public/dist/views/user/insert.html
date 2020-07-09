@@ -1,0 +1,136 @@
+
+
+<div class="layui-form" lay-filter="layuiadmin-form-useradmin" style="padding: 20px 0 0 0;">
+  <div class="layui-form-item">
+    <label class="layui-form-label">账户名</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name="username" lay-verify="required" lay-reqtext="账户名是必填项，岂能为空？" placeholder="请输入账户名" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">密码</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="password" name="password" lay-verify="required" lay-reqtext="密码是必填项，岂能为空？" placeholder="请输入密码" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">手机号码</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name="telphone" lay-verify="phone" lay-reqtext="电话号码是必填项，岂能为空？" placeholder="请输入号码" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">真实姓名</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name="truename" lay-verify="required" lay-reqtext="真实姓名是必填项，岂能为空？" placeholder="请输入真实姓名" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">头像</label>
+    <div class="layui-input-inline">
+        <div class="layui-upload-drag" id="test10">
+          <i class="layui-icon"></i>
+          <p>点击上传，或将文件拖拽到此处</p>
+        </div>
+      <input type="hidden" name="headimg" id="headimg" lay-verify="required" lay-reqtext="头像是必填项，岂能为空？">
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">合同文件</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name="contract" lay-verify="required" lay-reqtext="合同文件是必填项，岂能为空？" placeholder="请上传合同文件" autocomplete="off" class="layui-input" >
+      </script>
+    </div>
+    <button style="float: left;" type="button" class="layui-btn" id="layuiadmin-upload-useradmin">上传文件</button>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">地址</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name="address" lay-verify="required" lay-reqtext="地址是必填项，岂能为空？" placeholder="请输入地址" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">角色</label>
+    <div class="layui-input-inline" id="role">
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">到期时间</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name="end_time" id="test1" lay-verify="required" lay-reqtext="到期时间是必填项，岂能为空？" placeholder="请输入到期时间" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label"></label>
+    <div class="layui-input-inline">
+      <input type="button" lay-submit lay-filter="LAY-user-front-submit" value="确认" class="layui-btn" style="width: 100%;">
+    </div>
+  </div>
+</div>
+<script src="/layui/xm-select.js" type="text/javascript" charset="utf-8"></script>
+<script>
+layui.use(['laydate','form', 'upload'], function(){
+  var $ = layui.$
+  ,form = layui.form
+  ,laydate = layui.laydate
+  ,upload = layui.upload;
+
+  //常规用法
+  laydate.render({
+    elem: '#test1'
+    ,min: 'new Date()'
+  });
+
+  //拖拽上传
+  upload.render({
+    elem: '#test10'
+    ,url: '/upload_user?type=1' //改成您自己的上传接口
+    ,accept: 'images'
+    ,acceptMime: 'image/*'
+    ,done: function(res){
+      layer.msg('上传成功');
+      $('#test10').html('<img src="'+res.show_path+'" style="width: 100%;height: 100%;">');
+      $('#headimg').val(res.path);
+      console.log(res)
+    }
+  });
+
+  //上传合同文件
+  upload.render({
+    elem: '#layuiadmin-upload-useradmin'
+    ,url: '/upload_user?type=2'
+    ,accept: 'file' //普通文件
+    ,done: function(res){
+      $(this.item).prev("div").children("input").val(res.path)
+    }
+  });
+
+  $.ajax({
+    type:'get',
+    url:'/select_role',
+    success:function(data){
+      console.log('data:',data)
+      xmSelect.render({
+        // 这里绑定css选择器
+        el: '#role',
+        filterable:true,
+        // 渲染的数据
+        data:data,
+      })
+    }
+  })
+})
+</script>
